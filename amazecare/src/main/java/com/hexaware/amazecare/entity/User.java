@@ -1,16 +1,7 @@
 package com.hexaware.amazecare.entity;
-
-import jakarta.persistence.*;
 import java.time.LocalDateTime;
-
-@Entity
-@Table(name = "User")
 public class User {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int userId;
-
-    @Enumerated(EnumType.STRING)
     private Role role;
 
     private String name;
