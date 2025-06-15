@@ -1,9 +1,16 @@
 package com.hexaware.amazecare.entity;
 
+import jakarta.persistence.*;
 import java.time.LocalDate;
 
+@Entity
 public class PatientProfile {
+    @Id
     private int patientId;
+
+    @OneToOne
+    @MapsId
+    @JoinColumn(name = "patient_id")
     private User user;
 
     private LocalDate dateOfBirth;

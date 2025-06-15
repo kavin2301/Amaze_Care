@@ -1,7 +1,15 @@
 package com.hexaware.amazecare.entity;
 
+import jakarta.persistence.*;
+
+@Entity
 public class DoctorProfile {
+    @Id
     private int doctorId;
+
+    @OneToOne
+    @MapsId
+    @JoinColumn(name = "doctor_id")
     private User user;
 
     private String specialty;

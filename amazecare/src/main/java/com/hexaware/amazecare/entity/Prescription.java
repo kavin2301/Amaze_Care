@@ -1,7 +1,15 @@
 package com.hexaware.amazecare.entity;
 
+import jakarta.persistence.*;
+
+@Entity
 public class Prescription {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int prescriptionId;
+
+    @ManyToOne
+    @JoinColumn(name = "appointment_id")
     private Appointment appointment;
 
     private String medicineName;

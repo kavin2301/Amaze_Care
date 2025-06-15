@@ -1,10 +1,16 @@
 package com.hexaware.amazecare.entity;
 
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+@Entity
 public class MedicalRecord {
-    
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int recordId;
+
+    @OneToOne
+    @JoinColumn(name = "appointment_id")
     private Appointment appointment;
 
     private String diagnosis;

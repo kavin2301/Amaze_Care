@@ -3,12 +3,23 @@ package com.hexaware.amazecare.entity;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+@Entity
 public class Appointment {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int appointmentId;
+
+    @ManyToOne
+    @JoinColumn(name = "patient_id")
     private PatientProfile patient;
+
+    @ManyToOne
+    @JoinColumn(name = "doctor_id")
     private DoctorProfile doctor;
 
     private LocalDateTime appointmentDate;
+
+    @Enumerated(EnumType.STRING)
     private Status status;
 
     private String symptoms;
