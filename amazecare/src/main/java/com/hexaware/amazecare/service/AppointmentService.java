@@ -11,38 +11,34 @@ import java.util.List;
 
 @Service
 public class AppointmentService {
+
     @Autowired
     private AppointmentRepository appointmentRepo;
+
     @Autowired
     private PatientRepository patientRepo;
+
     @Autowired
     private DoctorRepository doctorRepo;
 
-    public Appointment bookAppointment(int patientId, int doctorId, LocalDateTime date, String symptoms) {
-        PatientProfile patient = patientRepo.findById(patientId).orElseThrow(() -> new EntityNotFoundException("Patient not found"));
-        DoctorProfile doctor = doctorRepo.findById(doctorId).orElseThrow(() -> new EntityNotFoundException("Doctor not found"));
+    public Appointment bookAppointment(int patientId, int doctorId, LocalDateTime appointmentDate, String symptoms) {
+        PatientProfile patient = patientRepo.findById(patientId)
+                .orElseThrow(() -> new EntityNotFoundException("Patient not found"));
 
-        Appointment appt = new Appointment();
-        appt.setPatient(patient);
-        appt.setDoctor(doctor);
-        appt.setAppointmentDate(date);
-        appt.setSymptoms(symptoms);
-        appt.setStatus(Status.SCHEDULED);
-        appt.setCreatedAt(LocalDateTime.now());
-        return appointmentRepo.save(appt);
-    }
+        DoctorProfile doctor = doctorRepo.findById(doctorId)
+                .orElseThrow(() -> new EntityNotFoundException("Doctor not found"));
 
-    public List<Appointment> getAppointmentsByDoctor(int doctorId) {
-        return appointmentRepo.findByDoctorDoctorId(doctorId);
+        Appointment appointment = new Appointment();
+        appointment.setPatient(patient);
+        appointment.setDoctor(doctor);
+        appointment.setAppointmentDate(appointmentDate);
+        appointment.setSymptoms(symptoms);
+        appointment.setStatus(Status.SCHEDULED);
+
+        return appointmentRepo.save(appointment);
     }
 
     public List<Appointment> getAppointmentsByPatient(int patientId) {
         return appointmentRepo.findByPatientPatientId(patientId);
-    }
-
-    public Appointment cancelAppointment(int appointmentId) {
-        Appointment appt = appointmentRepo.findById(appointmentId).orElseThrow(() -> new EntityNotFoundException("Appointment not found"));
-        appt.setStatus(Status.CANCELLED);
-        return appointmentRepo.save(appt);
     }
 }
