@@ -1,11 +1,16 @@
 package com.hexaware.amazecare.repository;
 
 import com.hexaware.amazecare.entity.User;
+import com.hexaware.amazecare.entity.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.Optional;
+import java.util.List;
 
 public interface UserRepository extends JpaRepository<User, Integer> {
-    boolean existsByEmail(String email);
-    Optional<User> findByEmail(String email);
+
+    User findByEmail(String email); 
+
+    List<User> findByRole(Role role);
+
+    boolean existsByEmail(String email); 
 }

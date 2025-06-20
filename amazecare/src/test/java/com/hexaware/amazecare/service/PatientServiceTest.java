@@ -10,12 +10,17 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class PatientServiceTest {
+class PatientServiceTest {
+    @InjectMocks
+    private PatientService patientService;
 
     @Mock
     private PatientRepository patientRepo;
@@ -23,31 +28,29 @@ public class PatientServiceTest {
     @Mock
     private UserRepository userRepo;
 
-    @InjectMocks
-    private PatientService patientService;
-
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
     }
 
     @Test
-    void testCreatePatientProfile_Success() {
+    void testCreatePatientProfileSuccess() {
         User user = new User();
-        when(userRepo.findById(1)).thenReturn(Optional.of(user));
+        user.setUserId(2);
+        when(userRepo.findById(2)).thenReturn(Optional.of(user));
+        when(patientRepo.existsByPatientId(2)).thenReturn(false);
 
         PatientProfile profile = new PatientProfile();
         profile.setGender("Male");
-
         when(patientRepo.save(any(PatientProfile.class))).thenReturn(profile);
 
-        PatientProfile result = patientService.createPatientProfile(1, LocalDate.of(2000, 1, 1), "Male");
+        PatientProfile result = patientService.createPatientProfile(2, LocalDate.of(2000, 1, 1), "Male");
         assertEquals("Male", result.getGender());
     }
 
     @Test
-    void testCreatePatientProfile_UserNotFound() {
-        when(userRepo.findById(1)).thenReturn(Optional.empty());
-        assertThrows(EntityNotFoundException.class, () -> patientService.createPatientProfile(1, LocalDate.now(), "Female"));
+    void testCreatePatientProfileAlreadyExists() {
+        when(patientRepo.existsByPatientId(2)).thenReturn(true);
+        assertThrows(IllegalArgumentException.class, () -> patientService.createPatientProfile(2, LocalDate.now(), "Female"));
     }
 }

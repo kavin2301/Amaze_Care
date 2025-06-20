@@ -21,7 +21,6 @@ public class User {
 
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    // Getters and Setters
     public int getUserId() {
         return userId;
     }

@@ -5,10 +5,10 @@ import jakarta.persistence.*;
 @Entity
 public class DoctorProfile {
 
-	@Id
-	private Integer doctorId;
-	
-    @OneToOne(cascade = CascadeType.MERGE)
+    @Id
+    private Integer doctorId;
+
+    @OneToOne
     @MapsId
     @JoinColumn(name = "doctor_id")
     private User user;
@@ -18,11 +18,10 @@ public class DoctorProfile {
     private String designation;
     private int experienceYears;
 
-    // Getters and Setters
-    public int getDoctorId() {
+    public Integer getDoctorId() {
         return doctorId;
     }
-    public void setDoctorId(int doctorId) {
+    public void setDoctorId(Integer doctorId) {
         this.doctorId = doctorId;
     }
     public User getUser() {

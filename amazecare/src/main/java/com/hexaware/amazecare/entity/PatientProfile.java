@@ -7,9 +7,9 @@ import java.time.LocalDate;
 public class PatientProfile {
 
     @Id
-    private int patientId;
+    private Integer patientId;
 
-    @OneToOne(cascade = CascadeType.MERGE)
+    @OneToOne
     @MapsId
     @JoinColumn(name = "patient_id")
     private User user;
@@ -17,11 +17,10 @@ public class PatientProfile {
     private LocalDate dateOfBirth;
     private String gender;
 
-    // Getters and Setters
-    public int getPatientId() {
+    public Integer getPatientId() {
         return patientId;
     }
-    public void setPatientId(int patientId) {
+    public void setPatientId(Integer patientId) {
         this.patientId = patientId;
     }
     public User getUser() {

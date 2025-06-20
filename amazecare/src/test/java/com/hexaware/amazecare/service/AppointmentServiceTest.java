@@ -9,59 +9,59 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class AppointmentServiceTest {
-
-    @Mock
-    private AppointmentRepository appointmentRepo;
-    @Mock
-    private PatientRepository patientRepo;
-    @Mock
-    private DoctorRepository doctorRepo;
-
+class AppointmentServiceTest {
     @InjectMocks
     private AppointmentService appointmentService;
 
+    @Mock
+    private AppointmentRepository appointmentRepo;
+
+    @Mock
+    private DoctorRepository doctorRepo;
+
+    @Mock
+    private PatientRepository patientRepo;
+
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.openMocks(this);
     }
 
     @Test
-    void testBookAppointment_Success() {
-        PatientProfile patient = new PatientProfile();
-        patient.setPatientId(1);
-        DoctorProfile doctor = new DoctorProfile();
-        doctor.setDoctorId(1);
+    void testBookAppointmentSuccess() {
+        DoctorProfile doc = new DoctorProfile();
+        PatientProfile pat = new PatientProfile();
+        when(doctorRepo.findById(1)).thenReturn(Optional.of(doc));
+        when(patientRepo.findById(2)).thenReturn(Optional.of(pat));
 
-        when(patientRepo.findById(1)).thenReturn(Optional.of(patient));
-        when(doctorRepo.findById(1)).thenReturn(Optional.of(doctor));
+        Appointment mockApp = new Appointment();
+        mockApp.setSymptoms("Cough");
+        when(appointmentRepo.save(any(Appointment.class))).thenReturn(mockApp);
 
-        Appointment saved = new Appointment();
-        saved.setAppointmentId(100);
-        when(appointmentRepo.save(any(Appointment.class))).thenReturn(saved);
-
-        Appointment result = appointmentService.bookAppointment(1, 1, LocalDateTime.now(), "Fever");
-
-        assertEquals(100, result.getAppointmentId());
+        Appointment app = appointmentService.bookAppointment(2, 1, LocalDateTime.now(), "Cough");
+        assertEquals("Cough", app.getSymptoms());
     }
 
     @Test
-    void testBookAppointment_PatientNotFound() {
-        when(patientRepo.findById(1)).thenReturn(Optional.empty());
-        assertThrows(EntityNotFoundException.class, () -> appointmentService.bookAppointment(1, 1, LocalDateTime.now(), "Fever"));
-    }
-
-    @Test
-    void testBookAppointment_DoctorNotFound() {
-        PatientProfile patient = new PatientProfile();
-        when(patientRepo.findById(1)).thenReturn(Optional.of(patient));
+    void testBookAppointmentDoctorNotFound() {
         when(doctorRepo.findById(1)).thenReturn(Optional.empty());
-        assertThrows(EntityNotFoundException.class, () -> appointmentService.bookAppointment(1, 1, LocalDateTime.now(), "Fever"));
+        assertThrows(EntityNotFoundException.class, () -> appointmentService.bookAppointment(2, 1, LocalDateTime.now(), "Headache"));
+    }
+
+    @Test
+    void testBookAppointmentPatientNotFound() {
+        DoctorProfile doc = new DoctorProfile();
+        when(doctorRepo.findById(1)).thenReturn(Optional.of(doc));
+        when(patientRepo.findById(2)).thenReturn(Optional.empty());
+        assertThrows(EntityNotFoundException.class, () -> appointmentService.bookAppointment(2, 1, LocalDateTime.now(), "Headache"));
     }
 }

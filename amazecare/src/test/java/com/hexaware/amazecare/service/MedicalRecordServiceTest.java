@@ -1,9 +1,7 @@
 package com.hexaware.amazecare.service;
 
-import com.hexaware.amazecare.entity.Appointment;
-import com.hexaware.amazecare.entity.MedicalRecord;
-import com.hexaware.amazecare.repository.AppointmentRepository;
-import com.hexaware.amazecare.repository.MedicalRecordRepository;
+import com.hexaware.amazecare.entity.*;
+import com.hexaware.amazecare.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,12 +9,18 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class MedicalRecordServiceTest {
+class MedicalRecordServiceTest {
+    @InjectMocks
+    private MedicalRecordService recordService;
 
     @Mock
     private MedicalRecordRepository recordRepo;
@@ -24,31 +28,27 @@ public class MedicalRecordServiceTest {
     @Mock
     private AppointmentRepository appointmentRepo;
 
-    @InjectMocks
-    private MedicalRecordService medicalRecordService;
-
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
     }
 
     @Test
-    void testAddMedicalRecord_Success() {
-        Appointment appt = new Appointment();
-        when(appointmentRepo.findById(1)).thenReturn(Optional.of(appt));
+    void testSaveRecord() {
+        Appointment app = new Appointment();
+        when(appointmentRepo.findById(1)).thenReturn(Optional.of(app));
 
-        MedicalRecord record = new MedicalRecord();
-        record.setDiagnosis("Flu");
+        MedicalRecord rec = new MedicalRecord();
+        rec.setDiagnosis("Flu");
+        when(recordRepo.save(any(MedicalRecord.class))).thenReturn(rec);
 
-        when(recordRepo.save(any(MedicalRecord.class))).thenReturn(record);
-
-        MedicalRecord result = medicalRecordService.addMedicalRecord(1, "Flu", "Normal", "Blood Test");
-        assertEquals("Flu", result.getDiagnosis());
+        MedicalRecord saved = recordService.saveRecord(1, "Flu", "Normal", "X-ray");
+        assertEquals("Flu", saved.getDiagnosis());
     }
 
     @Test
-    void testAddMedicalRecord_AppointmentNotFound() {
-        when(appointmentRepo.findById(1)).thenReturn(Optional.empty());
-        assertThrows(EntityNotFoundException.class, () -> medicalRecordService.addMedicalRecord(1, "Cough", "Mild", "X-Ray"));
+    void testSaveRecordAppointmentNotFound() {
+        when(appointmentRepo.findById(99)).thenReturn(Optional.empty());
+        assertThrows(EntityNotFoundException.class, () -> recordService.saveRecord(99, "Cold", "Check", "Blood"));
     }
 }

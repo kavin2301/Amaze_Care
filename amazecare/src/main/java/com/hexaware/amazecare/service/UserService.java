@@ -1,32 +1,41 @@
 package com.hexaware.amazecare.service;
 
-import com.hexaware.amazecare.entity.User;
-import com.hexaware.amazecare.entity.Role;
-import com.hexaware.amazecare.repository.UserRepository;
+import com.hexaware.amazecare.entity.*;
+import com.hexaware.amazecare.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+
 @Service
 public class UserService {
-
     @Autowired
-    private UserRepository userRepository;
+    private UserRepository userRepo;
 
     public User registerUser(User user) {
-        if (userRepository.existsByEmail(user.getEmail())) {
-            throw new IllegalArgumentException("Email already exists");
+        if (userRepo.existsByEmail(user.getEmail())) {
+            throw new IllegalArgumentException("Email already registered");
         }
-        return userRepository.save(user);
+        return userRepo.save(user);
     }
 
-    public User findUserByEmail(String email) {
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+    public User login(String email) {
+        User user = userRepo.findByEmail(email);
+        if (user == null) {
+            throw new EntityNotFoundException("User not found");
+        }
+        return user;
     }
 
-    public User getUserById(int userId) {
-        return userRepository.findById(userId)
+    public List<User> getUsersByRole(Role role) {
+        return userRepo.findByRole(role);
+    }
+
+    public User getUserById(int id) {
+        return userRepo.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
     }
 }
