@@ -45,6 +45,16 @@ public class AppointmentController {
             return ResponseEntity.status(404).body(e.getMessage());
         }
     }
+    
+    @PutMapping("/completed/{id}")
+    public ResponseEntity<?> completedAppointment(@PathVariable int id) {
+        try {
+            appointmentService.completedAppointment(id);
+            return ResponseEntity.ok("Appointment completed successfully");
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
+        }
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getAppointmentById(@PathVariable int id) {

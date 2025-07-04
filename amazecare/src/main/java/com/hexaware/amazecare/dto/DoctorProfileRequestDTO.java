@@ -7,7 +7,6 @@ public class DoctorProfileRequestDTO {
     private String designation;
     private int experienceYears;
 
-    // Getters and Setters
 
     public int getUserId() {
         return userId;

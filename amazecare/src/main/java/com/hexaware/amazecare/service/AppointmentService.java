@@ -45,6 +45,14 @@ public class AppointmentService {
         appt.setStatus(Status.CANCELLED);
         appointmentRepo.save(appt);
     }
+    
+    @Transactional
+    public void completedAppointment(int appointmentId) {
+        Appointment appt = appointmentRepo.findById(appointmentId)
+                .orElseThrow(() -> new EntityNotFoundException("Appointment not found with ID: " + appointmentId));
+        appt.setStatus(Status.COMPLETED);
+        appointmentRepo.save(appt);
+    }
 
     public List<Appointment> getAppointmentsByPatientId(int patientId) {
         return appointmentRepo.findByPatientPatientId(patientId);

@@ -6,7 +6,6 @@ public class PrescriptionRequestDTO {
     private String dosagePattern;
     private String intakeTime;
 
-    // Getters and Setters
     public int getAppointmentId() {
         return appointmentId;
     }
