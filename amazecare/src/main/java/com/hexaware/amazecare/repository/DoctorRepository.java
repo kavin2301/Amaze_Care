@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface DoctorRepository extends JpaRepository<DoctorProfile, Integer> {
 
-    List<DoctorProfile> findBySpecialtyContainingIgnoreCase(String keyword); // Search doctors by specialty
-
     boolean existsByDoctorId(Integer doctorId);
+
+    List<DoctorProfile> findBySpecialtyContainingIgnoreCase(String keyword); // Search doctors by specialty
 }

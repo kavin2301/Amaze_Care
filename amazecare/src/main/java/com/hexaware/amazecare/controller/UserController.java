@@ -1,9 +1,8 @@
-// 📁 Location: com.hexaware.amazecare.controller
-
 package com.hexaware.amazecare.controller;
 
-import com.hexaware.amazecare.entity.Role;
+import com.hexaware.amazecare.dto.UserRequestDTO;
 import com.hexaware.amazecare.entity.User;
+import com.hexaware.amazecare.entity.Role;
 import com.hexaware.amazecare.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,38 +19,32 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody User user) {
+    public ResponseEntity<?> register(@RequestBody UserRequestDTO dto) {
         try {
-            User createdUser = userService.registerUser(user);
-            return ResponseEntity.ok(createdUser);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
+            User user = new User();
+            user.setName(dto.getName());
+            user.setEmail(dto.getEmail());
+            user.setPassword(dto.getPassword()); // Will be hashed in service
+            user.setMobileNumber(dto.getMobileNumber());
+            user.setRole(dto.getRole());
 
-    @GetMapping("/login")
-    public ResponseEntity<?> login(@RequestParam String email) {
-        try {
-            User user = userService.login(email);
-            return ResponseEntity.ok(user);
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.status(404).body("Invalid credentials or user not found");
+            return ResponseEntity.ok(userService.registerUser(user));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("Email already registered");
         }
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getUserById(@PathVariable int id) {
+    public ResponseEntity<?> getById(@PathVariable int id) {
         try {
-            User user = userService.getUserById(id);
-            return ResponseEntity.ok(user);
+            return ResponseEntity.ok(userService.getUserById(id));
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(404).body("User not found");
         }
     }
 
     @GetMapping("/role/{role}")
-    public ResponseEntity<List<User>> getUsersByRole(@PathVariable Role role) {
-        List<User> users = userService.getUsersByRole(role);
-        return ResponseEntity.ok(users);
+    public ResponseEntity<List<User>> getByRole(@PathVariable Role role) {
+        return ResponseEntity.ok(userService.getUsersByRole(role));
     }
 }

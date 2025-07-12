@@ -30,7 +30,7 @@ public class MedicalRecordController {
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(404).body("Appointment not found");
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Invalid input");
+            return ResponseEntity.badRequest().body("Invalid input: " + e.getMessage());
         }
     }
 

@@ -21,11 +21,11 @@ public class DoctorController {
     public ResponseEntity<?> createDoctorProfile(@RequestBody DoctorProfileRequestDTO dto) {
         try {
             DoctorProfile profile = doctorService.createDoctorProfile(
-                    dto.getUserId(),
-                    dto.getSpecialty(),
-                    dto.getQualification(),
-                    dto.getDesignation(),
-                    dto.getExperienceYears()
+                dto.getUserId(),
+                dto.getSpecialty(),
+                dto.getQualification(),
+                dto.getDesignation(),
+                dto.getExperienceYears()
             );
             return ResponseEntity.ok(profile);
         } catch (IllegalArgumentException | EntityNotFoundException e) {

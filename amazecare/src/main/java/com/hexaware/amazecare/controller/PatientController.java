@@ -20,15 +20,11 @@ public class PatientController {
     @PostMapping("/create")
     public ResponseEntity<?> createPatientProfile(@RequestBody PatientProfileRequestDTO dto) {
         try {
-            LocalDate dateOfBirth = LocalDate.parse(dto.getDob()); 
-            PatientProfile profile = patientService.createPatientProfile(
-                    dto.getUserId(), dateOfBirth, dto.getGender()
-            );
+            LocalDate dob = LocalDate.parse(dto.getDob());
+            PatientProfile profile = patientService.createPatientProfile(dto.getUserId(), dob, dto.getGender());
             return ResponseEntity.ok(profile);
-        } catch (IllegalArgumentException | EntityNotFoundException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(500).body("Invalid date format or server error");
+            return ResponseEntity.badRequest().body("Invalid input or user not found");
         }
     }
 
@@ -37,6 +33,30 @@ public class PatientController {
         try {
             PatientProfile profile = patientService.getPatientById(id);
             return ResponseEntity.ok(profile);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(404).body("Patient not found");
+        }
+    }
+
+    @PutMapping("/update/{id}")
+    public ResponseEntity<?> updatePatientProfile(@PathVariable int id, @RequestBody PatientProfileRequestDTO dto) {
+        try {
+            LocalDate dob = LocalDate.parse(dto.getDob());
+            PatientProfile updated = new PatientProfile();
+            updated.setDateOfBirth(dob);
+            updated.setGender(dto.getGender());
+            PatientProfile profile = patientService.updatePatientProfile(id, updated);
+            return ResponseEntity.ok(profile);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Failed to update patient: " + e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<?> deletePatientProfile(@PathVariable int id) {
+        try {
+            patientService.deletePatientProfile(id);
+            return ResponseEntity.ok("Patient deleted successfully");
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(404).body("Patient not found");
         }

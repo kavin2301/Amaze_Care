@@ -3,17 +3,15 @@ package com.hexaware.amazecare.service;
 import com.hexaware.amazecare.entity.*;
 import com.hexaware.amazecare.repository.*;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import jakarta.transaction.Transactional;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 public class DoctorService {
+
     @Autowired
     private DoctorRepository doctorRepo;
 
@@ -43,5 +41,16 @@ public class DoctorService {
     public DoctorProfile getDoctorById(int id) {
         return doctorRepo.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Doctor not found"));
+    }
+
+    public List<DoctorProfile> getAllDoctors() {
+        return doctorRepo.findAll();
+    }
+
+    public void deleteDoctorProfile(int id) {
+        if (!doctorRepo.existsById(id)) {
+            throw new EntityNotFoundException("Doctor not found");
+        }
+        doctorRepo.deleteById(id);
     }
 }

@@ -1,57 +1,55 @@
 package com.hexaware.amazecare.service;
 
 import com.hexaware.amazecare.entity.*;
-import org.springframework.transaction.annotation.Transactional;
 import com.hexaware.amazecare.repository.*;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 public class AppointmentService {
+
     @Autowired
     private AppointmentRepository appointmentRepo;
 
     @Autowired
-    private DoctorRepository doctorRepo;
+    private PatientRepository patientRepo;
 
     @Autowired
-    private PatientRepository patientRepo;
+    private DoctorRepository doctorRepo;
 
     @Transactional
     public Appointment bookAppointment(int patientId, int doctorId, LocalDateTime dateTime, String symptoms) {
-        DoctorProfile doctor = doctorRepo.findById(doctorId)
-                .orElseThrow(() -> new EntityNotFoundException("Doctor not found with ID: " + doctorId));
         PatientProfile patient = patientRepo.findById(patientId)
-                .orElseThrow(() -> new EntityNotFoundException("Patient not found with ID: " + patientId));
+                .orElseThrow(() -> new EntityNotFoundException("Patient not found"));
+        DoctorProfile doctor = doctorRepo.findById(doctorId)
+                .orElseThrow(() -> new EntityNotFoundException("Doctor not found"));
 
-        Appointment appointment = new Appointment();
-        appointment.setDoctor(doctor);
-        appointment.setPatient(patient);
-        appointment.setAppointmentDate(dateTime);
-        appointment.setSymptoms(symptoms);
-        appointment.setStatus(Status.SCHEDULED);
-        return appointmentRepo.save(appointment);
+        Appointment appt = new Appointment();
+        appt.setPatient(patient);
+        appt.setDoctor(doctor);
+        appt.setAppointmentDate(dateTime);
+        appt.setSymptoms(symptoms);
+        appt.setStatus(Status.SCHEDULED);
+
+        return appointmentRepo.save(appt);
     }
 
     @Transactional
     public void cancelAppointment(int appointmentId) {
         Appointment appt = appointmentRepo.findById(appointmentId)
-                .orElseThrow(() -> new EntityNotFoundException("Appointment not found with ID: " + appointmentId));
+                .orElseThrow(() -> new EntityNotFoundException("Appointment not found"));
         appt.setStatus(Status.CANCELLED);
         appointmentRepo.save(appt);
     }
-    
-    @Transactional
-    public void completedAppointment(int appointmentId) {
-        Appointment appt = appointmentRepo.findById(appointmentId)
-                .orElseThrow(() -> new EntityNotFoundException("Appointment not found with ID: " + appointmentId));
-        appt.setStatus(Status.COMPLETED);
-        appointmentRepo.save(appt);
+
+    public Appointment getAppointmentById(int id) {
+        return appointmentRepo.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Appointment not found"));
     }
 
     public List<Appointment> getAppointmentsByPatientId(int patientId) {
@@ -62,17 +60,11 @@ public class AppointmentService {
         return appointmentRepo.findByDoctorDoctorId(doctorId);
     }
 
-    public Appointment getAppointmentById(int appointmentId) {
-        return appointmentRepo.findById(appointmentId)
-                .orElseThrow(() -> new EntityNotFoundException("Appointment not found with ID: " + appointmentId));
+    public List<Appointment> getAppointmentsByStatus(Status status) {
+        return appointmentRepo.findByStatus(status);
     }
 
-    public List<Appointment> getAppointmentsByStatus(String status) {
-        try {
-            Status enumStatus = Status.valueOf(status.toUpperCase()); 
-            return appointmentRepo.findByStatus(enumStatus);
-        } catch (IllegalArgumentException e) {
-            throw new EntityNotFoundException("Invalid status: " + status);
-        }
+    public List<Appointment> getAllAppointments() {
+        return appointmentRepo.findAll();
     }
 }
