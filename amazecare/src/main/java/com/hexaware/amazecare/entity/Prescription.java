@@ -3,49 +3,50 @@ package com.hexaware.amazecare.entity;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "prescription")
+@Table(name = "prescriptions")
 public class Prescription {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int prescriptionId;
+    private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "appointment_id")
-    private Appointment appointment;
+    @JoinColumn(name = "consultation_id", nullable = false)
+    private Consultation consultation;
 
     private String medicineName;
-    private String dosagePattern; // example: 1-0-1
-    private String intakeTime;    // example: BF / AF
-    
-	public int getPrescriptionId() {
-		return prescriptionId;
-	}
-	public void setPrescriptionId(int prescriptionId) {
-		this.prescriptionId = prescriptionId;
-	}
-	public Appointment getAppointment() {
-		return appointment;
-	}
-	public void setAppointment(Appointment appointment) {
-		this.appointment = appointment;
-	}
-	public String getMedicineName() {
-		return medicineName;
-	}
-	public void setMedicineName(String medicineName) {
-		this.medicineName = medicineName;
-	}
-	public String getDosagePattern() {
-		return dosagePattern;
-	}
-	public void setDosagePattern(String dosagePattern) {
-		this.dosagePattern = dosagePattern;
-	}
-	public String getIntakeTime() {
-		return intakeTime;
-	}
-	public void setIntakeTime(String intakeTime) {
-		this.intakeTime = intakeTime;
-	}
+
+    private String dosage; // e.g., 500mg
+
+    private String timing; // e.g., 0-0-1
+
+    private String instruction; // e.g., AF (after food)
+
+    public Prescription() {}
+
+    public Prescription(Consultation consultation, String medicineName, String dosage, String timing, String instruction) {
+        this.consultation = consultation;
+        this.medicineName = medicineName;
+        this.dosage = dosage;
+        this.timing = timing;
+        this.instruction = instruction;
+    }
+
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+
+    public Consultation getConsultation() { return consultation; }
+    public void setConsultation(Consultation consultation) { this.consultation = consultation; }
+
+    public String getMedicineName() { return medicineName; }
+    public void setMedicineName(String medicineName) { this.medicineName = medicineName; }
+
+    public String getDosage() { return dosage; }
+    public void setDosage(String dosage) { this.dosage = dosage; }
+
+    public String getTiming() { return timing; }
+    public void setTiming(String timing) { this.timing = timing; }
+
+    public String getInstruction() { return instruction; }
+    public void setInstruction(String instruction) { this.instruction = instruction; }
 }

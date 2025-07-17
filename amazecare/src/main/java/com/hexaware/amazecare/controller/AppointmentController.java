@@ -1,79 +1,70 @@
 package com.hexaware.amazecare.controller;
 
-import com.hexaware.amazecare.dto.AppointmentRequestDTO;
 import com.hexaware.amazecare.entity.Appointment;
-import com.hexaware.amazecare.entity.Status;
+import com.hexaware.amazecare.entity.AppointmentStatus;
 import com.hexaware.amazecare.service.AppointmentService;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
-@RequestMapping("/appointments")
+@RequestMapping("/api/appointments")
 public class AppointmentController {
 
     @Autowired
     private AppointmentService appointmentService;
 
-   
-    @PostMapping("/book")
-    public ResponseEntity<?> bookAppointment(@RequestBody AppointmentRequestDTO dto) {
-        try {
-            LocalDateTime dateTime = LocalDateTime.parse(dto.getAppointmentDateTime());
-            Appointment appointment = appointmentService.bookAppointment(
-                    dto.getPatientId(),
-                    dto.getDoctorId(),
-                    dateTime,
-                    dto.getSymptoms()
-            );
-            return ResponseEntity.ok(appointment);
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.status(404).body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Invalid input or date format (expected yyyy-MM-ddTHH:mm)");
-        }
+    @PostMapping
+    public ResponseEntity<Appointment> bookAppointment(
+            @RequestParam Long doctorId,
+            @RequestParam String dateTime, 
+            @RequestParam String notes) {
+
+        String patientEmail = getLoggedInEmail();
+        LocalDateTime parsedDateTime = LocalDateTime.parse(dateTime);
+        Appointment appointment = appointmentService.bookAppointment(doctorId, patientEmail, parsedDateTime, notes);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(appointment);
     }
 
-    
-    @PutMapping("/cancel/{id}")
-    public ResponseEntity<?> cancelAppointment(@PathVariable int id) {
-        try {
-            appointmentService.cancelAppointment(id);
-            return ResponseEntity.ok("Appointment cancelled successfully");
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.status(404).body(e.getMessage());
-        }
+    // ✅ View appointments for logged-in patient
+    @GetMapping("/patient")
+    public ResponseEntity<List<Appointment>> getAppointmentsForPatient() {
+        String patientEmail = getLoggedInEmail();
+        List<Appointment> appointments = appointmentService.getAppointmentsForPatient(patientEmail);
+        return ResponseEntity.ok(appointments);
     }
 
-   
-    @GetMapping("/patient/{id}")
-    public ResponseEntity<List<Appointment>> getByPatient(@PathVariable int id) {
-        return ResponseEntity.ok(appointmentService.getAppointmentsByPatientId(id));
+    @GetMapping("/doctor")
+    public ResponseEntity<List<Appointment>> getAppointmentsForDoctor() {
+        String doctorEmail = getLoggedInEmail();
+        List<Appointment> appointments = appointmentService.getAppointmentsForDoctor(doctorEmail);
+        return ResponseEntity.ok(appointments);
     }
 
-    
-    @GetMapping("/doctor/{id}")
-    public ResponseEntity<List<Appointment>> getByDoctor(@PathVariable int id) {
-        return ResponseEntity.ok(appointmentService.getAppointmentsByDoctorId(id));
+    @PutMapping("/{id}/status")
+    public ResponseEntity<Appointment> updateAppointmentStatus(
+            @PathVariable Long id,
+            @RequestParam AppointmentStatus status) {
+
+        Appointment updated = appointmentService.updateAppointmentStatus(id, status);
+        return ResponseEntity.ok(updated);
     }
 
-    
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getById(@PathVariable int id) {
-        try {
-            return ResponseEntity.ok(appointmentService.getAppointmentById(id));
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.status(404).body("Appointment not found");
-        }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> cancelAppointment(@PathVariable Long id) {
+        String patientEmail = getLoggedInEmail();
+        boolean result = appointmentService.cancelAppointment(id, patientEmail);
+        return result ?
+                ResponseEntity.ok("Appointment cancelled") :
+                ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to cancel appointment");
     }
 
-   
-    @GetMapping("/status/{status}")
-    public ResponseEntity<List<Appointment>> getByStatus(@PathVariable Status status) {
-        return ResponseEntity.ok(appointmentService.getAppointmentsByStatus(status));
+    private String getLoggedInEmail() {
+        return SecurityContextHolder.getContext().getAuthentication().getName();
     }
 }

@@ -1,9 +1,11 @@
 package com.hexaware.amazecare.repository;
 
-import com.hexaware.amazecare.entity.PatientProfile;
+import com.hexaware.amazecare.entity.Patient;
+import com.hexaware.amazecare.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface PatientRepository extends JpaRepository<PatientProfile, Integer> {
+import java.util.Optional;
 
-    boolean existsByPatientId(Integer patientId);
+public interface PatientRepository extends JpaRepository<Patient, Long> {
+    Optional<Patient> findByUser(User user);
 }
